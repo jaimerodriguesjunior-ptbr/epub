@@ -2,5 +2,6 @@ node_modules/
 dist/
 .vercel/
 *.epub
+!public/meninos-contra-a-guerra.epub
 *.log
 .qa/

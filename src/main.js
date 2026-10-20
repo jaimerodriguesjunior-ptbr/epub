@@ -36,6 +36,7 @@ let rebuilding = false;
 let currentIndex = 0;
 let locationIndex = 0;
 let saveWarning = false;
+let loadingFeatured = false;
 const shelfUrls = [];
 
 function toast(message) {
@@ -116,7 +117,7 @@ async function fingerprint(bytes, filename) {
 }
 
 async function importFile(file) {
-  if (!file || importing) return;
+  if (!file || importing || loadingFeatured) return;
   if (!/\.epub$/i.test(file.name)) { toast('Escolha um arquivo com a extensão .epub.'); return; }
   if (file.size > 150 * 1024 * 1024) { toast('Este EPUB é muito grande. Abra um arquivo de até 150 MB.'); return; }
   importing = true;
@@ -138,8 +139,29 @@ async function importFile(file) {
   finally { importing = false; $('#file-input').value = ''; $('#busy').hidden = true; }
 }
 
+async function openFeaturedBook() {
+  if (importing || loadingFeatured) return;
+  const button = $('#featured-book');
+  loadingFeatured = true;
+  button.disabled = true;
+  busy('Buscando o livro…', 'Ele será salvo na biblioteca deste navegador');
+  let file;
+  try {
+    const response = await fetch(`${import.meta.env.BASE_URL}meninos-contra-a-guerra.epub`);
+    if (!response.ok) throw new Error('Não foi possível carregar o livro incluído neste site.');
+    file = new File([await response.arrayBuffer()], 'Meninos Contra a Guerra - com capa.epub', { type: 'application/epub+zip' });
+  } catch (error) {
+    showError(error);
+  } finally {
+    loadingFeatured = false;
+    button.disabled = false;
+    $('#busy').hidden = true;
+  }
+  if (file) await importFile(file);
+}
+
 async function openStored(record) {
-  if (importing) return;
+  if (importing || loadingFeatured) return;
   importing = true;
   busy('Voltando à sua leitura…');
   let parsed;
@@ -347,6 +369,7 @@ async function closeReader() {
 
 document.querySelectorAll('.import-trigger').forEach(button => button.addEventListener('click', () => $('#file-input').click()));
 $('#file-input').addEventListener('change', event => importFile(event.target.files[0]));
+$('#featured-book').addEventListener('click', openFeaturedBook);
 let dragCounter = 0;
 document.addEventListener('dragenter', event => { if (event.dataTransfer.types.includes('Files')) { event.preventDefault(); dragCounter++; if (!activeBook) $('#dropzone').classList.add('drag-over'); } });
 document.addEventListener('dragleave', () => { if (--dragCounter <= 0) { dragCounter = 0; $('#dropzone').classList.remove('drag-over'); } });

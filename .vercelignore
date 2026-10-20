@@ -3,4 +3,5 @@ node_modules/
 dist/
 *.epub
 **/*.epub
+!public/meninos-contra-a-guerra.epub
 *.log
