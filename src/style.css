@@ -201,7 +201,19 @@
 }
 
 @layer responsive {
-  @media (min-width: 1400px) { .hero { padding-top: 85px; padding-bottom: 100px; }.library-header { height: 120px; } }
+  @media (min-width: 1400px) { .hero { padding-top: 36px; padding-bottom: 30px; }.library-header { height: 120px; } }
+  @media (min-width: 901px) {
+    .hero { grid-template-columns: minmax(0, 1fr) 250px; padding: 36px 0 30px; }
+    .hero h1 { font-size: clamp(40px, 4vw, 52px); letter-spacing: -1.8px; white-space: nowrap; }
+    .hero h1 br { display: none; }
+    .hero .eyebrow { margin-bottom: 16px; }
+    .hero-copy { margin: 16px 0 20px; }
+    .book-illustration { height: 220px; transform: scale(.82); }
+    .illustration-cover { width: 168px; height: 230px; }
+    .section-heading { padding-top: 23px; padding-bottom: 20px; }
+    .featured-book-object, .featured-book-card .book-info { width: min(100%, 190px); }
+    .featured-book-card .remove-book { right: max(7px, calc((100% - 190px) / 2 + 9px)); }
+  }
   @media (max-width: 900px) { .library-header { padding: 0 38px; }.hero { padding-top: 45px; }.hero h1 { font-size: 50px; }.book-illustration { transform: scale(.85); }.shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 25px; }.reader-header { padding: 0 20px; grid-template-columns: 1fr minmax(100px, 2fr) 1fr; }.reading-title strong { font-size: 13px; } }
   @media (max-width: 650px) {
     .library-header { height: 83px; padding: 0 24px; }.brand { font-size: 25px; }.brand svg { width: 26px; height: 26px; }.device-note { font-size: 0; }.device-note svg { width: 20px; height: 20px; }
