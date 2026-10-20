@@ -38,6 +38,13 @@ let locationIndex = 0;
 let saveWarning = false;
 let loadingFeatured = false;
 const shelfUrls = [];
+const featuredTitle = 'Meninos Contra a Guerra';
+const featuredAuthor = 'João Arantes';
+
+function isFeaturedRecord(book) {
+  const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
+  return normalize(book.title) === normalize(featuredTitle) && normalize(book.author) === normalize(featuredAuthor);
+}
 
 function toast(message) {
   clearTimeout(toastTimer);
@@ -70,42 +77,65 @@ function applyPreferences() {
 function renderLibrary() {
   shelfUrls.splice(0).forEach(url => URL.revokeObjectURL(url));
   $('#shelf').replaceChildren();
-  $('#book-count').textContent = books.length;
-  $('#dropzone').hidden = books.length > 0;
-  for (const [index, book] of [...books].sort((a, b) => b.lastOpened - a.lastOpened).entries()) {
+  const featuredRecord = books.find(isFeaturedRecord) || null;
+  const otherBooks = books.filter(book => book !== featuredRecord).sort((a, b) => b.lastOpened - a.lastOpened);
+  const entries = [
+    { book: featuredRecord || { title: featuredTitle, author: featuredAuthor, percent: 0 }, featured: true, record: featuredRecord },
+    ...otherBooks.map(book => ({ book, featured: false, record: book })),
+  ];
+  $('#book-count').textContent = entries.length;
+  $('#dropzone').hidden = true;
+  for (const [index, entry] of entries.entries()) {
+    const { book, featured, record } = entry;
     const article = document.createElement('article');
-    article.className = 'book-card';
+    article.className = featured ? 'book-card featured-book-card' : 'book-card';
     const open = document.createElement('button');
     open.className = 'book-open';
-    open.setAttribute('aria-label', `Ler ${book.title}`);
-    const cover = document.createElement('div');
-    cover.className = `shelf-cover cover-color-${index % 4}`;
-    if (book.cover) {
-      const url = URL.createObjectURL(book.cover);
-      shelfUrls.push(url);
-      const image = document.createElement('img'); image.src = url; image.alt = ''; cover.append(image);
+    open.setAttribute('aria-label', `Ler ${book.title}, por ${book.author}`);
+    let cover;
+    if (featured) {
+      const object = document.createElement('div'); object.className = 'featured-book-object';
+      const pages = document.createElement('span'); pages.className = 'featured-book-pages'; pages.setAttribute('aria-hidden', 'true');
+      cover = document.createElement('div'); cover.className = 'shelf-cover featured-shelf-cover';
+      const image = document.createElement('img'); image.src = `${import.meta.env.BASE_URL}meninos-contra-a-guerra-capa.png`; image.alt = '';
+      cover.append(image); object.append(pages, cover); open.append(object);
     } else {
-      const top = document.createElement('span'); top.className = 'shelf-cover-label'; top.textContent = 'ENTRELINHAS · BIBLIOTECA PESSOAL';
-      const title = document.createElement('strong'); title.textContent = book.title;
-      const star = document.createElement('span'); star.className = 'shelf-cover-star'; star.textContent = '✳';
-      const author = document.createElement('span'); author.className = 'shelf-cover-author'; author.textContent = book.author;
-      cover.append(top, title, star, author);
+      cover = document.createElement('div'); cover.className = `shelf-cover cover-color-${(index - 1 + 4) % 4}`;
+      if (book.cover) {
+        const url = URL.createObjectURL(book.cover);
+        shelfUrls.push(url);
+        const image = document.createElement('img'); image.src = url; image.alt = ''; cover.append(image);
+      } else {
+        const top = document.createElement('span'); top.className = 'shelf-cover-label'; top.textContent = 'ENTRELINHAS · BIBLIOTECA PESSOAL';
+        const title = document.createElement('strong'); title.textContent = book.title;
+        const star = document.createElement('span'); star.className = 'shelf-cover-star'; star.textContent = '✳';
+        const author = document.createElement('span'); author.className = 'shelf-cover-author'; author.textContent = book.author;
+        cover.append(top, title, star, author);
+      }
+      open.append(cover);
     }
     const info = document.createElement('div'); info.className = 'book-info';
     const title = document.createElement('h3'); title.textContent = book.title;
     const author = document.createElement('p'); author.textContent = book.author;
     const track = document.createElement('div'); track.className = 'book-track';
     const bar = document.createElement('span'); bar.style.width = `${book.percent || 0}%`; track.append(bar);
-    const status = document.createElement('span'); status.className = 'book-status'; status.textContent = book.location ? `Continuar leitura · ${book.percent || 0}%` : 'Começar a leitura';
-    info.append(title, author, track, status); open.append(cover, info);
-    open.addEventListener('click', () => openStored(book));
-    const remove = document.createElement('button'); remove.className = 'remove-book icon-button'; remove.innerHTML = icon('trash'); remove.setAttribute('aria-label', `Remover ${book.title}`);
-    remove.addEventListener('click', () => {
-      pendingRemoval = book.id;
-      $('#remove-description').textContent = book.title;
-      $('#remove-dialog').showModal();
-    });
-    article.append(open, remove); $('#shelf').append(article);
+    const status = document.createElement('span'); status.className = 'book-status';
+    status.textContent = featured
+      ? (record?.location ? `Continuar leitura · ${record.percent || 0}%` : 'Edição do site · Toque para ler')
+      : (book.location ? `Continuar leitura · ${book.percent || 0}%` : 'Começar a leitura');
+    info.append(title, author, track, status); open.append(info);
+    open.addEventListener('click', () => featured ? openFeaturedBook(record) : openStored(book));
+    article.append(open);
+    if (!featured || record) {
+      const remove = document.createElement('button'); remove.className = 'remove-book icon-button'; remove.innerHTML = icon('trash'); remove.setAttribute('aria-label', `Remover ${book.title}`);
+      remove.addEventListener('click', () => {
+        pendingRemoval = book.id;
+        $('#remove-description').textContent = book.title;
+        $('#remove-dialog').showModal();
+      });
+      article.append(remove);
+    }
+    $('#shelf').append(article);
   }
 }
 
@@ -139,11 +169,10 @@ async function importFile(file) {
   finally { importing = false; $('#file-input').value = ''; $('#busy').hidden = true; }
 }
 
-async function openFeaturedBook() {
+async function openFeaturedBook(record) {
+  if (record && !record.sessionOnly) return openStored(record);
   if (importing || loadingFeatured) return;
-  const button = $('#featured-book');
   loadingFeatured = true;
-  button.disabled = true;
   busy('Buscando o livro…', 'Ele será salvo na biblioteca deste navegador');
   let file;
   try {
@@ -154,7 +183,6 @@ async function openFeaturedBook() {
     showError(error);
   } finally {
     loadingFeatured = false;
-    button.disabled = false;
     $('#busy').hidden = true;
   }
   if (file) await importFile(file);
@@ -369,7 +397,6 @@ async function closeReader() {
 
 document.querySelectorAll('.import-trigger').forEach(button => button.addEventListener('click', () => $('#file-input').click()));
 $('#file-input').addEventListener('change', event => importFile(event.target.files[0]));
-$('#featured-book').addEventListener('click', openFeaturedBook);
 let dragCounter = 0;
 document.addEventListener('dragenter', event => { if (event.dataTransfer.types.includes('Files')) { event.preventDefault(); dragCounter++; if (!activeBook) $('#dropzone').classList.add('drag-over'); } });
 document.addEventListener('dragleave', () => { if (--dragCounter <= 0) { dragCounter = 0; $('#dropzone').classList.remove('drag-over'); } });
@@ -442,5 +469,5 @@ new ResizeObserver(() => {
 window.addEventListener('pagehide', () => { if (activeRecord) persistRecord(); });
 
 try { books = await getBooks(); renderLibrary(); }
-catch (error) { console.error(error); toast('O armazenamento local está indisponível. Você ainda pode abrir um EPUB para ler nesta sessão.'); }
+catch (error) { console.error(error); renderLibrary(); toast('O armazenamento local está indisponível. Você ainda pode abrir um EPUB para ler nesta sessão.'); }
 if (import.meta.env.PROD && 'serviceWorker' in navigator) navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(error => console.warn('Offline indisponível:', error));
