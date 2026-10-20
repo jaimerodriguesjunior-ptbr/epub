@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f3ec" />
+    <meta name="description" content="Seu espaço de leitura. Abra EPUBs, vire as páginas e continue de onde parou. Seus livros ficam neste dispositivo." />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>Entrelinhas · Leitor EPUB</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="library-header">
+        <a class="brand" href="./" aria-label="Entrelinhas, início"><span data-icon="book"></span> entrelinhas<span class="brand-dot">.</span></a>
+        <span class="device-note"><span data-icon="shield"></span> Seu dispositivo. Seus livros.</span>
+      </header>
+
+      <main id="library" class="library">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">O TEMPO DE UMA BOA HISTÓRIA</p>
+            <h1>Abra um livro.<br /><em>Fique um pouco.</em></h1>
+            <p class="hero-copy">Um espaço tranquilo para suas leituras.<br />Escolha um EPUB e deixe o resto lá fora.</p>
+            <button class="primary import-trigger"><span data-icon="plus"></span> Abrir um EPUB</button>
+            <p class="small-note">O arquivo fica salvo somente neste navegador.</p>
+          </div>
+          <div class="book-illustration" aria-hidden="true">
+            <div class="illustration-shadow"></div>
+            <div class="illustration-cover"><span class="cover-rule"></span><span class="cover-small">UMA PÁGINA<br />DE CADA VEZ</span><span class="cover-flower">✳</span><span class="cover-bottom">sua próxima história</span></div>
+            <span class="illustration-caption">um intervalo para a imaginação</span>
+          </div>
+        </section>
+
+        <section class="shelf-section" aria-labelledby="shelf-title">
+          <div class="section-heading"><div><p class="eyebrow">BIBLIOTECA PESSOAL</p><h2 id="shelf-title">Suas leituras <span id="book-count">0</span></h2></div><button class="text-button import-trigger"><span data-icon="plus"></span> Adicionar livro</button></div>
+          <div id="shelf" class="shelf"></div>
+          <button id="dropzone" class="dropzone import-trigger"><span class="drop-icon" data-icon="upload"></span><strong>Sua primeira história começa aqui</strong><span>Arraste um arquivo .epub ou toque para escolher</span></button>
+        </section>
+        <footer class="library-footer"><span data-icon="lock"></span><p>Seus livros e seu progresso ficam neste navegador.<br class="mobile-only" /> Sem conta, sem envio de arquivos.</p><span class="footer-tag">feito para ler com calma</span></footer>
+      </main>
+
+      <section id="reader" class="reader" hidden aria-label="Leitor de livros">
+        <header class="reader-header">
+          <button id="back-library" class="text-button"><span data-icon="arrowLeft"></span><span class="desktop-label">Biblioteca</span></button>
+          <div class="reading-title"><strong id="reading-title"></strong><span id="reading-author"></span></div>
+          <nav class="reader-tools" aria-label="Opções de leitura">
+            <button id="toc-button" class="icon-button" aria-label="Abrir sumário" title="Sumário"><span data-icon="list"></span></button>
+            <button id="settings-button" class="icon-button type-button" aria-label="Ajustar aparência" title="Aparência">Aa</button>
+            <button id="bookmark-button" class="icon-button" aria-label="Marcar página" title="Marcar página" aria-pressed="false"><span data-icon="bookmark"></span></button>
+            <button id="fullscreen-button" class="icon-button desktop-label" aria-label="Tela cheia" title="Tela cheia"><span data-icon="expand"></span></button>
+          </nav>
+        </header>
+        <div id="reading-stage" class="reading-stage">
+          <button id="previous" class="page-arrow previous" aria-label="Página anterior"><span data-icon="chevronLeft"></span></button>
+          <div id="book-mount" class="book-mount"></div>
+          <button id="next" class="page-arrow next" aria-label="Próxima página"><span data-icon="chevronRight"></span></button>
+        </div>
+        <footer class="reading-footer">
+          <div class="reading-status"><span id="chapter-label"></span><span id="page-label"></span></div>
+          <input id="progress" type="range" min="0" max="100" value="0" step="1" aria-label="Ir para uma posição no livro" />
+          <div class="reading-hint"><span>Arraste o canto da página para virar <span class="desktop-label">· ← → no teclado</span></span><span id="percent-label">0%</span></div>
+        </footer>
+      </section>
+    </div>
+
+    <dialog id="contents-dialog" class="panel-dialog contents-dialog" aria-labelledby="contents-title">
+      <div class="dialog-header"><div><p class="eyebrow">EXPLORE O LIVRO</p><h2 id="contents-title">Sumário</h2></div><button class="icon-button close-dialog" aria-label="Fechar sumário"><span data-icon="close"></span></button></div>
+      <div class="tabs" role="tablist" aria-label="Navegação do livro"><button id="chapters-tab" role="tab" aria-selected="true" aria-controls="chapters-panel">Capítulos</button><button id="marks-tab" role="tab" aria-selected="false" aria-controls="marks-panel" tabindex="-1">Marcações <span id="marks-count">0</span></button></div>
+      <nav id="chapters-panel" role="tabpanel" aria-labelledby="chapters-tab" class="contents-list"></nav>
+      <div id="marks-panel" role="tabpanel" aria-labelledby="marks-tab" class="contents-list" hidden></div>
+    </dialog>
+
+    <dialog id="settings-dialog" class="panel-dialog settings-dialog" aria-labelledby="settings-title">
+      <div class="dialog-header"><div><p class="eyebrow">DO SEU JEITO</p><h2 id="settings-title">Aparência</h2></div><button class="icon-button close-dialog" aria-label="Fechar aparência"><span data-icon="close"></span></button></div>
+      <fieldset><legend>Tamanho do texto</legend><div class="font-size-control"><button id="font-smaller" class="secondary" aria-label="Diminuir texto">A−</button><output id="font-value">18 px</output><button id="font-larger" class="secondary" aria-label="Aumentar texto">A+</button></div></fieldset>
+      <fieldset><legend>Fonte</legend><div class="segmented"><button data-font="serif" aria-pressed="true" class="serif-option">Literária</button><button data-font="sans" aria-pressed="false">Simples</button></div></fieldset>
+      <fieldset><legend>Cor da página</legend><div class="themes"><button data-theme="paper" aria-pressed="true"><span class="theme-swatch paper-swatch">Aa</span>Papel</button><button data-theme="sepia" aria-pressed="false"><span class="theme-swatch sepia-swatch">Aa</span>Sépia</button><button data-theme="night" aria-pressed="false"><span class="theme-swatch night-swatch">Aa</span>Noite</button></div></fieldset>
+      <fieldset><legend>Espaçamento</legend><div class="segmented"><button data-spacing="normal" aria-pressed="true">Normal</button><button data-spacing="wide" aria-pressed="false">Amplo</button></div></fieldset>
+      <p class="settings-note">As páginas se ajustam ao tamanho do texto e à sua tela.</p>
+    </dialog>
+
+    <dialog id="remove-dialog" class="panel-dialog remove-dialog" aria-labelledby="remove-title"><h2 id="remove-title">Remover deste dispositivo?</h2><p id="remove-description"></p><p>O progresso e as marcações desse livro também serão removidos. O arquivo original permanece no seu aparelho.</p><div class="dialog-actions"><button id="cancel-remove" class="secondary">Manter livro</button><button id="confirm-remove" class="primary danger">Remover</button></div></dialog>
+    <div id="busy" class="busy" hidden role="status" aria-live="polite"><div class="busy-card"><span class="spinner"></span><strong id="busy-text">Abrindo o livro…</strong><span id="busy-detail">Preparando suas páginas</span></div></div>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <input id="file-input" type="file" accept=".epub,application/epub+zip" hidden />
+    <div id="measure" class="page-content measure" aria-hidden="true"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

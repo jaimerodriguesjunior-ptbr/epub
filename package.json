@@ -1,0 +1,19 @@
+{
+  "name": "entrelinhas-leitor",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "dompurify": "^3.3.0",
+    "jszip": "^3.10.1",
+    "page-flip": "2.0.7"
+  },
+  "devDependencies": {
+    "vite": "^7.1.0"
+  }
+}
