@@ -170,22 +170,47 @@ async function importFile(file) {
 }
 
 async function openFeaturedBook(record) {
-  if (record && !record.sessionOnly) return openStored(record);
   if (importing || loadingFeatured) return;
   loadingFeatured = true;
-  busy('Buscando o livro…', 'Ele será salvo na biblioteca deste navegador');
+  busy('Verificando a edição do livro…', 'Se houver uma versão nova, a cópia salva será substituída');
   let file;
+  let latestId;
+  let latestRecord;
+  let verificationError;
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}meninos-contra-a-guerra.epub`);
+    const response = await fetch(`${import.meta.env.BASE_URL}meninos-contra-a-guerra.epub`, { cache: 'no-store' });
     if (!response.ok) throw new Error('Não foi possível carregar o livro incluído neste site.');
-    file = new File([await response.arrayBuffer()], 'Meninos Contra a Guerra - com capa.epub', { type: 'application/epub+zip' });
+    const bytes = await response.arrayBuffer();
+    file = new File([bytes], 'Meninos Contra a Guerra - com capa.epub', { type: 'application/epub+zip' });
+    latestId = await fingerprint(bytes, file.name);
+    latestRecord = books.find(book => book.id === latestId) || null;
   } catch (error) {
-    showError(error);
+    verificationError = error;
   } finally {
     loadingFeatured = false;
     $('#busy').hidden = true;
   }
-  if (file) await importFile(file);
+  if (verificationError) {
+    if (record && !record.sessionOnly) {
+      toast('Sem conexão para verificar a edição. Abrindo a cópia salva neste navegador.');
+      await openStored(record);
+    } else showError(verificationError);
+    return;
+  }
+
+  try {
+    if (record && record.id !== latestId) {
+      await removeBook(record.id);
+      books = books.filter(book => book.id !== record.id);
+      renderLibrary();
+      if (!latestRecord) toast('Uma nova edição foi encontrada. A leitura será reiniciada.');
+    }
+
+    const currentRecord = books.find(book => book.id === latestId);
+    if (currentRecord && !currentRecord.sessionOnly && await getFile(currentRecord.id)) {
+      await openStored(currentRecord);
+    } else if (file) await importFile(file);
+  } catch (error) { showError(error); }
 }
 
 async function openStored(record) {
