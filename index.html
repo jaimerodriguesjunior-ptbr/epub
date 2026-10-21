@@ -57,7 +57,14 @@
           <button id="next" class="page-arrow next" aria-label="Próxima página"><span data-icon="chevronRight"></span></button>
         </div>
         <footer class="reading-footer">
-          <div class="reading-status"><span id="chapter-label"></span><span id="page-label"></span></div>
+          <div class="reading-status">
+            <span id="chapter-label"></span>
+            <div class="page-navigation">
+              <button id="previous-mobile" class="icon-button mobile-page-control" aria-label="Página anterior"><span data-icon="chevronLeft"></span></button>
+              <span id="page-label"></span>
+              <button id="next-mobile" class="icon-button mobile-page-control" aria-label="Próxima página"><span data-icon="chevronRight"></span></button>
+            </div>
+          </div>
           <input id="progress" type="range" min="0" max="100" value="0" step="1" aria-label="Ir para uma posição no livro" />
           <div class="reading-hint"><span>Arraste o canto da página para virar <span class="desktop-label">· ← → no teclado</span></span><span id="percent-label">0%</span></div>
         </footer>

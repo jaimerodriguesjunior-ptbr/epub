@@ -342,6 +342,8 @@ function updatePosition(index, focus = index) {
   $('#progress').setAttribute('aria-valuetext', `Página ${index + 1} de ${total}, ${percent}%`);
   $('#previous').disabled = index === 0;
   $('#next').disabled = end === total;
+  $('#previous-mobile').disabled = index === 0;
+  $('#next-mobile').disabled = end === total;
   activeRecord.location = { section: page.section, offset: page.offset };
   activeRecord.percent = percent;
   activeRecord.lastOpened = Date.now();
@@ -447,6 +449,8 @@ $('#marks-tab').addEventListener('click', () => switchTab(true));
 $('.tabs').addEventListener('keydown', event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const marks = event.key === 'End' || (event.key !== 'Home' && $('#marks-tab').getAttribute('aria-selected') !== 'true'); switchTab(marks); $(marks ? '#marks-tab' : '#chapters-tab').focus(); } });
 $('#previous').addEventListener('click', () => { if (!rebuilding && currentIndex > 0) flip?.flipPrev('bottom'); });
 $('#next').addEventListener('click', () => { if (!rebuilding && !$('#next').disabled) flip?.flipNext('bottom'); });
+$('#previous-mobile').addEventListener('click', () => { if (!rebuilding && currentIndex > 0) flip?.flipPrev('bottom'); });
+$('#next-mobile').addEventListener('click', () => { if (!rebuilding && !$('#next-mobile').disabled) flip?.flipNext('bottom'); });
 $('#progress').addEventListener('input', event => goTo(Number(event.target.value)));
 $('#bookmark-button').addEventListener('click', () => {
   if (!activeRecord || rebuilding) return;
