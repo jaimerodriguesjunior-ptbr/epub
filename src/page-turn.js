@@ -5,6 +5,19 @@ export function configurePageTurner(flip, visible) {
   const draw = renderer.drawFrame.bind(renderer);
   renderer.drawFrame = () => { if (visible()) draw(); };
 
+  // In portrait mode, StPageFlip's flipPrev starts from a fixed left-edge
+  // coordinate that fails its own corner check when click-to-flip is disabled.
+  // Temporarily allow that explicit API call; ordinary taps remain disabled.
+  const flipPrev = flip.flipPrev.bind(flip);
+  flip.flipPrev = corner => {
+    if (flip.getOrientation() !== 'portrait') return flipPrev(corner);
+    const settings = flip.getSettings();
+    const disableFlipByClick = settings.disableFlipByClick;
+    settings.disableFlipByClick = false;
+    try { return flipPrev(corner); }
+    finally { settings.disableFlipByClick = disableFlipByClick; }
+  };
+
   const controller = flip.getFlipController();
   const stop = controller.stopMove.bind(controller);
   controller.stopMove = () => {
