@@ -4,6 +4,7 @@ import { readEpub } from './epub.js';
 import { paginate, pageForLocation } from './pagination.js';
 import { configurePageTurner } from './page-turn.js';
 import { getBooks, getFile, storeBook, saveBook, removeBook, loadPreferences, savePreferences } from './storage.js';
+import { featuredEditions, editionForRecord } from './catalog.js';
 
 const $ = selector => document.querySelector(selector);
 const icons = {
@@ -38,13 +39,6 @@ let locationIndex = 0;
 let saveWarning = false;
 let loadingFeatured = false;
 const shelfUrls = [];
-const featuredTitle = 'Meninos Contra a Guerra';
-const featuredAuthor = 'João Arantes';
-
-function isFeaturedRecord(book) {
-  const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
-  return normalize(book.title) === normalize(featuredTitle) && normalize(book.author) === normalize(featuredAuthor);
-}
 
 function toast(message) {
   clearTimeout(toastTimer);
@@ -77,10 +71,12 @@ function applyPreferences() {
 function renderLibrary() {
   shelfUrls.splice(0).forEach(url => URL.revokeObjectURL(url));
   $('#shelf').replaceChildren();
-  const featuredRecord = books.find(isFeaturedRecord) || null;
-  const otherBooks = books.filter(book => book !== featuredRecord).sort((a, b) => b.lastOpened - a.lastOpened);
+  const otherBooks = books.filter(book => !editionForRecord(book)).sort((a, b) => b.lastOpened - a.lastOpened);
   const entries = [
-    { book: featuredRecord || { title: featuredTitle, author: featuredAuthor, percent: 0 }, featured: true, record: featuredRecord },
+    ...featuredEditions.map(edition => {
+      const record = books.filter(book => editionForRecord(book)?.id === edition.id).sort((a, b) => b.lastOpened - a.lastOpened)[0] || null;
+      return { book: { ...record, title: edition.title, author: edition.author, percent: record?.percent || 0 }, featured: edition, record };
+    }),
     ...otherBooks.map(book => ({ book, featured: false, record: book })),
   ];
   $('#book-count').textContent = entries.length;
@@ -89,15 +85,16 @@ function renderLibrary() {
     const { book, featured, record } = entry;
     const article = document.createElement('article');
     article.className = featured ? 'book-card featured-book-card' : 'book-card';
+    if (featured) article.dataset.edition = featured.id;
     const open = document.createElement('button');
     open.className = 'book-open';
-    open.setAttribute('aria-label', `Ler ${book.title}, por ${book.author}`);
+    open.setAttribute('aria-label', `Ler ${book.title}, por ${book.author}${featured ? `, em ${featured.language}` : ''}`);
     let cover;
     if (featured) {
       const object = document.createElement('div'); object.className = 'featured-book-object';
       const pages = document.createElement('span'); pages.className = 'featured-book-pages'; pages.setAttribute('aria-hidden', 'true');
       cover = document.createElement('div'); cover.className = 'shelf-cover featured-shelf-cover';
-      const image = document.createElement('img'); image.src = `${import.meta.env.BASE_URL}meninos-contra-a-guerra-capa.png`; image.alt = '';
+      const image = document.createElement('img'); image.src = `${import.meta.env.BASE_URL}${featured.cover}`; image.alt = '';
       cover.append(image); object.append(pages, cover); open.append(object);
     } else {
       cover = document.createElement('div'); cover.className = `shelf-cover cover-color-${(index - 1 + 4) % 4}`;
@@ -115,6 +112,9 @@ function renderLibrary() {
       open.append(cover);
     }
     const info = document.createElement('div'); info.className = 'book-info';
+    if (featured) {
+      const language = document.createElement('span'); language.className = 'book-language'; language.textContent = featured.language; info.append(language);
+    }
     const title = document.createElement('h3'); title.textContent = book.title;
     const author = document.createElement('p'); author.textContent = book.author;
     const track = document.createElement('div'); track.className = 'book-track';
@@ -124,7 +124,7 @@ function renderLibrary() {
       ? (record?.location ? `Continuar leitura · ${record.percent || 0}%` : 'Edição do site · Toque para ler')
       : (book.location ? `Continuar leitura · ${book.percent || 0}%` : 'Começar a leitura');
     info.append(title, author, track, status); open.append(info);
-    open.addEventListener('click', () => featured ? openFeaturedBook(record) : openStored(book));
+    open.addEventListener('click', () => featured ? openFeaturedBook(featured, record) : openStored(book));
     article.append(open);
     if (!featured || record) {
       const remove = document.createElement('button'); remove.className = 'remove-book icon-button'; remove.innerHTML = icon('trash'); remove.setAttribute('aria-label', `Remover ${book.title}`);
@@ -146,7 +146,7 @@ async function fingerprint(bytes, filename) {
   return `${filename}:${bytes.byteLength}:${hash >>> 0}`;
 }
 
-async function importFile(file) {
+async function importFile(file, edition = null) {
   if (!file || importing || loadingFeatured) return;
   if (!/\.epub$/i.test(file.name)) { toast('Escolha um arquivo com a extensão .epub.'); return; }
   if (file.size > 150 * 1024 * 1024) { toast('Este EPUB é muito grande. Abra um arquivo de até 150 MB.'); return; }
@@ -159,6 +159,7 @@ async function importFile(file) {
     const existing = books.find(book => book.id === id);
     parsed = await readEpub(bytes, file.name, detail => { $('#busy-detail').textContent = detail; });
     const record = existing || { id, title: parsed.title, author: parsed.author, cover: parsed.cover, filename: file.name, addedAt: Date.now(), lastOpened: Date.now(), percent: 0, bookmarks: [] };
+    if (edition) record.siteEdition = edition.id;
     try {
       await storeBook(record, bytes);
       if (!existing) books.push(record);
@@ -169,7 +170,7 @@ async function importFile(file) {
   finally { importing = false; $('#file-input').value = ''; $('#busy').hidden = true; }
 }
 
-async function openFeaturedBook(record) {
+async function openFeaturedBook(edition, record) {
   if (importing || loadingFeatured) return;
   loadingFeatured = true;
   busy('Verificando a edição do livro…', 'Se houver uma versão nova, a cópia salva será substituída');
@@ -178,10 +179,10 @@ async function openFeaturedBook(record) {
   let latestRecord;
   let verificationError;
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}meninos-contra-a-guerra.epub`, { cache: 'no-store' });
+    const response = await fetch(`${import.meta.env.BASE_URL}${edition.epub}`, { cache: 'no-store' });
     if (!response.ok) throw new Error('Não foi possível carregar o livro incluído neste site.');
     const bytes = await response.arrayBuffer();
-    file = new File([bytes], 'Meninos Contra a Guerra - com capa.epub', { type: 'application/epub+zip' });
+    file = new File([bytes], edition.filename, { type: 'application/epub+zip' });
     latestId = await fingerprint(bytes, file.name);
     latestRecord = books.find(book => book.id === latestId) || null;
   } catch (error) {
@@ -199,9 +200,11 @@ async function openFeaturedBook(record) {
   }
 
   try {
-    if (record && record.id !== latestId) {
-      await removeBook(record.id);
-      books = books.filter(book => book.id !== record.id);
+    const obsoleteRecords = books.filter(book => editionForRecord(book)?.id === edition.id && book.id !== latestId);
+    if (obsoleteRecords.length) {
+      for (const oldRecord of obsoleteRecords) await removeBook(oldRecord.id);
+      const obsoleteIds = new Set(obsoleteRecords.map(book => book.id));
+      books = books.filter(book => !obsoleteIds.has(book.id));
       renderLibrary();
       if (!latestRecord) toast('Uma nova edição foi encontrada. A leitura será reiniciada.');
     }
@@ -209,7 +212,7 @@ async function openFeaturedBook(record) {
     const currentRecord = books.find(book => book.id === latestId);
     if (currentRecord && !currentRecord.sessionOnly && await getFile(currentRecord.id)) {
       await openStored(currentRecord);
-    } else if (file) await importFile(file);
+    } else if (file) await importFile(file, edition);
   } catch (error) { showError(error); }
 }
 

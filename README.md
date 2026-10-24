@@ -29,7 +29,9 @@ O resultado está em `dist/`. Em produção, um service worker guarda o leitor p
 
 Importe o repositório no Vercel e configure **Root Directory: `leitor`**, **Framework: Vite**, **Build Command: `npm run build`**, **Output Directory: `dist`**. O `vercel.json` já inclui essas configurações e cabeçalhos de segurança. Também é possível executar `npx vercel` dentro desta pasta.
 
-Publique somente esta pasta. A estante inclui a capa de `Meninos contra a Guerra`; tocar no livro baixa `public/meninos-contra-a-guerra.epub` e salva uma cópia na biblioteca local do navegador. O EPUB fica publicamente acessível em `/meninos-contra-a-guerra.epub`. Não há banco de dados; cada dispositivo mantém seu próprio arquivo e progresso. Outros EPUBs continuam fora do deploy.
+Publique somente esta pasta. A estante inclui cinco edições de João Arantes: português, inglês, espanhol, francês e italiano. O catálogo em `src/catalog.js` define títulos, idiomas e caminhos para `public/books/` e `public/covers/`. Tocar em uma edição baixa seu EPUB e salva uma cópia na biblioteca local do navegador, com progresso e marcações próprios.
+
+Ao abrir uma edição com internet, o leitor verifica o arquivo publicado. Quando houver uma atualização, substitui as cópias anteriores daquela edição; sem conexão, abre a cópia local disponível. O aplicativo e as cinco capas são guardados para uso offline. Os EPUBs são salvos no dispositivo depois de abertos. A edição portuguesa antiga foi substituída pela edição com capa padronizada.
 
 ## Compatibilidade
 
@@ -48,4 +50,4 @@ Publique somente esta pasta. A estante inclui a capa de `Meninos contra a Guerra
 - `src/page-turn.js`: ajustes de toque e renderização para StPageFlip 2.0.7.
 - `vite.config.js`: compilação e cache offline do aplicativo.
 
-Dependências: JSZip (MIT/GPL-3.0, utilizável sob MIT), DOMPurify (Apache-2.0/MPL-2.0) e StPageFlip (MIT). O deploy inclui apenas a edição e a capa de Meninos contra a Guerra indicadas acima.
+Dependências: JSZip (MIT/GPL-3.0, utilizável sob MIT), DOMPurify (Apache-2.0/MPL-2.0) e StPageFlip (MIT). O deploy inclui os cinco EPUBs e suas capas indicados no catálogo. Os textos de trabalho e traduções reversas ficam fora da publicação.

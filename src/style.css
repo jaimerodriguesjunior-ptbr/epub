@@ -64,7 +64,7 @@
   .drop-icon svg { width: 21px; height: 21px; }
   .dropzone strong { font-size: 12px; font-weight: 500; }
   .dropzone > span:last-child { color: #93978b; font-size: 11px; }
-  .shelf { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+  .shelf { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; }
   .book-card { position: relative; min-width: 0; }
   .book-open { width: 100%; padding: 0; text-align: left; }
   .featured-book-object { position: relative; width: min(100%, 220px); aspect-ratio: 2 / 3; margin: 0 auto; perspective: 1100px; }
@@ -85,6 +85,7 @@
   .shelf-cover-star { font-size: 42px; margin: auto 0 9px; opacity: .6; font-family: Georgia, serif; }
   .shelf-cover-author { font-size: 9px; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .book-info { padding-top: 18px; padding-right: 12px; }
+  .book-language { display: block; margin-bottom: 7px; color: var(--accent); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
   .book-info h3 { font-family: Georgia, serif; font-size: 17px; line-height: 1.4; margin-bottom: 6px; }
   .book-info p { color: var(--muted); font-size: 11px; line-height: 1.5; }
   .book-track { height: 2px; background: var(--line); margin-top: 18px; }

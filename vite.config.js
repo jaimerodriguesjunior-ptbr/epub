@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite';
+import { featuredEditions } from './src/catalog.js';
 
 export default defineConfig({
   plugins: [{
     name: 'offline-reader',
     generateBundle(_, bundle) {
-      const assets = ['./', './index.html', './icon.svg', './manifest.webmanifest', './meninos-contra-a-guerra-capa.png', ...Object.keys(bundle).map(name => `./${name}`)];
+      const assets = ['./', './index.html', './icon.svg', './manifest.webmanifest', ...featuredEditions.map(edition => `./${edition.cover}`), ...Object.keys(bundle).map(name => `./${name}`)];
       const version = `entrelinhas-${Date.now()}`;
       this.emitFile({ type: 'asset', fileName: 'sw.js', source: `
 const CACHE = ${JSON.stringify(version)};
