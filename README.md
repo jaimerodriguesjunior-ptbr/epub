@@ -33,6 +33,18 @@ Publique somente esta pasta. A estante inclui cinco edições de João Arantes: 
 
 Ao abrir uma edição com internet, o leitor verifica o arquivo publicado. Quando houver uma atualização, substitui as cópias anteriores daquela edição; sem conexão, abre a cópia local disponível. O aplicativo e as cinco capas são guardados para uso offline. Os EPUBs são salvos no dispositivo depois de abertos. A edição portuguesa antiga foi substituída pela edição com capa padronizada.
 
+## Instalar o Entrelinhas
+
+O Entrelinhas pode ser instalado como PWA no [endereço de produção](https://epub-six.vercel.app/). Use **Instalar app** no cabeçalho. Chrome e Edge exibem o diálogo do navegador quando a instalação está disponível. Em iPhone/iPad, o botão mostra as instruções do Safari para **Adicionar à Tela de Início**; no Safari do Mac, para **Adicionar ao Dock**. Depois de instalado, o aplicativo abre em janela própria e o botão de instalação fica oculto.
+
+O manifest tem identificação estável, abertura em modo standalone, ícones PNG de 192/512/1024 px, variantes maskable e capturas reais para celular e computador. O cache offline inclui a interface, as capas e os ícones. Os livros ficam disponíveis offline depois de abertos com internet.
+
+A identidade visual tem fonte vetorial em `public/icon.svg` e gerador em `scripts/generate_brand_assets.py`. Para gerar novamente os arquivos, execute `python scripts/generate_brand_assets.py` em Windows com Pillow e as fontes Georgia/Arial. Isso gera os ícones comuns de 48 a 1024 px, maskable de 192/512 px, Apple Touch de 120/152/167/180 px, favicon ICO/PNG, ícone monocromático do Safari e imagem Open Graph de 1200 × 630 px em `public/social/entrelinhas-og.png`. As variantes Apple e maskable têm fundo opaco; o desenho permanece dentro da área segura de recorte.
+
+Os metadados Open Graph e Twitter usam URLs absolutas da produção. Ao publicar em outro domínio, atualize essas URLs e o canonical no `index.html`.
+
+Referências: [manifest e ícones](https://web.dev/learn/pwa/web-app-manifest), [diálogo de instalação](https://web.dev/learn/pwa/installation-prompt), [Apple: iPhone](https://support.apple.com/guide/iphone/open-as-web-app-iphea86e5236/ios), [Apple: Mac](https://support.apple.com/104996), [Open Graph](https://ogp.me/).
+
 ## Compatibilidade
 
 - EPUB 2 e EPUB 3 de texto ajustável, incluindo sumário NCX ou navegação HTML, imagens locais PNG/JPEG/GIF/WebP/AVIF/BMP e formatação básica.

@@ -5,6 +5,7 @@ import { paginate, pageForLocation } from './pagination.js';
 import { configurePageTurner } from './page-turn.js';
 import { getBooks, getFile, storeBook, saveBook, removeBook, loadPreferences, savePreferences } from './storage.js';
 import { featuredEditions, editionForRecord } from './catalog.js';
+import { setupPwa } from './pwa.js';
 
 const $ = selector => document.querySelector(selector);
 const icons = {
@@ -12,6 +13,7 @@ const icons = {
   shield: '<path d="m12 3 8 3v6c0 4-5 8-8 9-3-1-8-5-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/>',
   lock: '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/>',
   plus: '<path d="M12 5v14M5 12h14"/>', upload: '<path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/>',
+  download: '<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',
   arrowLeft: '<path d="M20 12H4m7-7-7 7 7 7"/>', chevronLeft: '<path d="m15 5-7 7 7 7"/>', chevronRight: '<path d="m9 5 7 7-7 7"/>',
   list: '<path d="M9 6h12M9 12h12M9 18h12M3 6h.01M3 12h.01M3 18h.01"/>',
   bookmark: '<path d="M6 3h12v19l-6-4-6 4V3Z"/>', expand: '<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',
@@ -46,6 +48,7 @@ function toast(message) {
   $('#toast').hidden = false;
   toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 6000);
 }
+setupPwa({ toast });
 function busy(message, detail = 'Preparando suas páginas') {
   $('#busy-text').textContent = message;
   $('#busy-detail').textContent = detail;

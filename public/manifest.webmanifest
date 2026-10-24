@@ -1,12 +1,27 @@
 {
   "name": "Entrelinhas · Leitor EPUB",
   "short_name": "Entrelinhas",
-  "description": "Sua biblioteca EPUB, guardada neste dispositivo.",
+  "description": "Leia seus EPUBs no seu ritmo, com sua biblioteca e seu progresso guardados neste dispositivo.",
+  "id": "/",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#f5f3ec",
-  "theme_color": "#254d43",
-  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "theme_color": "#f5f3ec",
+  "categories": ["books", "education"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-1024.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "screenshots": [
+    { "src": "./screenshots/library-desktop.png", "sizes": "1280x960", "type": "image/png", "form_factor": "wide", "label": "Estante do Entrelinhas no computador" },
+    { "src": "./screenshots/library-mobile.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "Sua biblioteca no celular" }
+  ]
 }

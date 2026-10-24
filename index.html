@@ -5,15 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f5f3ec" />
     <meta name="description" content="Seu espaço de leitura. Abra EPUBs, vire as páginas e continue de onde parou. Seus livros ficam neste dispositivo." />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta name="application-name" content="Entrelinhas" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Entrelinhas" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="msapplication-TileColor" content="#285448" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    <link rel="canonical" href="https://epub-six.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Entrelinhas" />
+    <meta property="og:title" content="Entrelinhas · Seu espaço de leitura" />
+    <meta property="og:description" content="Abra um livro. Fique um pouco. Leia seus EPUBs no seu ritmo, com leitura offline e sua biblioteca neste dispositivo." />
+    <meta property="og:url" content="https://epub-six.vercel.app/" />
+    <meta property="og:image" content="https://epub-six.vercel.app/social/entrelinhas-og.png" />
+    <meta property="og:image:secure_url" content="https://epub-six.vercel.app/social/entrelinhas-og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Entrelinhas: um livro aberto com marcador, ao lado da frase Abra um livro. Fique um pouco." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Entrelinhas · Seu espaço de leitura" />
+    <meta name="twitter:description" content="Sua biblioteca EPUB, no seu ritmo. Leia offline, sem conta, no seu dispositivo." />
+    <meta name="twitter:image" content="https://epub-six.vercel.app/social/entrelinhas-og.png" />
+    <meta name="twitter:image:alt" content="Ícone do Entrelinhas e a frase Abra um livro. Fique um pouco." />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/icon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-touch-icon-167.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#285448" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Entrelinhas · Leitor EPUB</title>
   </head>
   <body>
     <div id="app">
       <header class="library-header">
-        <a class="brand" href="./" aria-label="Entrelinhas, início"><span data-icon="book"></span> entrelinhas<span class="brand-dot">.</span></a>
-        <span class="device-note"><span data-icon="shield"></span> Seu dispositivo. Seus livros.</span>
+        <a class="brand" href="./" aria-label="Entrelinhas, início"><img class="brand-icon" src="/icons/icon-48.png" width="28" height="28" alt="" /> entrelinhas<span class="brand-dot">.</span></a>
+        <div class="header-actions">
+          <span class="device-note"><span data-icon="shield"></span> Seu dispositivo. Seus livros.</span>
+          <button id="install-app" class="install-button" aria-label="Instalar Entrelinhas" hidden><span data-icon="download"></span><span class="install-label">Instalar app</span></button>
+        </div>
       </header>
 
       <main id="library" class="library">
@@ -70,6 +106,14 @@
         </footer>
       </section>
     </div>
+
+    <dialog id="install-dialog" class="panel-dialog install-dialog" aria-labelledby="install-title">
+      <div class="dialog-header"><div><p class="eyebrow">SEMPRE POR PERTO</p><h2 id="install-title">Instalar Entrelinhas</h2></div><button class="icon-button close-dialog" aria-label="Fechar instruções de instalação"><span data-icon="close"></span></button></div>
+      <img class="install-app-icon" src="/icons/icon-192.png" width="72" height="72" alt="" />
+      <p class="install-intro">Seu espaço de leitura na tela inicial, com uma janela só para os seus livros.</p>
+      <ol id="install-steps" class="install-steps"></ol>
+      <p class="settings-note">Abra seus livros uma vez com internet para continuar lendo offline neste dispositivo.</p>
+    </dialog>
 
     <dialog id="contents-dialog" class="panel-dialog contents-dialog" aria-labelledby="contents-title">
       <div class="dialog-header"><div><p class="eyebrow">EXPLORE O LIVRO</p><h2 id="contents-title">Sumário</h2></div><button class="icon-button close-dialog" aria-label="Fechar sumário"><span data-icon="close"></span></button></div>

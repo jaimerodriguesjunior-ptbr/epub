@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite';
 import { featuredEditions } from './src/catalog.js';
+import { readdirSync } from 'node:fs';
 
 export default defineConfig({
   plugins: [{
     name: 'offline-reader',
     generateBundle(_, bundle) {
-      const assets = ['./', './index.html', './icon.svg', './manifest.webmanifest', ...featuredEditions.map(edition => `./${edition.cover}`), ...Object.keys(bundle).map(name => `./${name}`)];
+      const icons = readdirSync(new URL('./public/icons/', import.meta.url)).map(name => `./icons/${name}`);
+      const assets = ['./', './index.html', './icon.svg', './favicon.ico', './apple-touch-icon.png', './safari-pinned-tab.svg', './browserconfig.xml', './manifest.webmanifest', ...icons, ...featuredEditions.map(edition => `./${edition.cover}`), ...Object.keys(bundle).map(name => `./${name}`)];
       const version = `entrelinhas-${Date.now()}`;
       this.emitFile({ type: 'asset', fileName: 'sw.js', source: `
 const CACHE = ${JSON.stringify(version)};
